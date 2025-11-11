@@ -1,5 +1,7 @@
 .venv
 .vscode
 __pycache__
+.cph/
 .env
-ideation.docx
+.cursorindexingignore
+.specstory/

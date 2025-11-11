@@ -1,0 +1,11 @@
+# Database
+sqlalchemy>=2.0.0
+asyncpg>=0.29.0
+
+# FastAPI (if using)
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
