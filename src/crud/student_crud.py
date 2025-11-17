@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from models import Student, User, UserTypeEnum
+from models.student import Student
+from models.user import User, UserTypeEnum
 from passlib.hash import bcrypt
 
 def create_student_with_user(

@@ -12,4 +12,4 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from src.config.database import Base
+from config.database import Base

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def upload_file_process(file_path: str):
+def upload_file_process(file: str):
     # === Step 1: Upload PDF to Azure Blob ===
     connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
     container_name = "incoming"

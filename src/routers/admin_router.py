@@ -1,25 +1,37 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from schemas.admin_schema import UploadMarksheet
 from services.admin_service import upload_file_process
 from db import get_db
+from sqlalchemy.orm import Session
 from crud.student_crud import create_student_with_user, get_student_by_registration
 
-router = APIRouter(prefix = "/api/admin", tags = ["admin"])
+admin_router = APIRouter()
 
-@router.get("/",method=['GET'])
-def admin_home(request: HomeAdmin):
-    ...
+@admin_router.get("/")
+def admin_home():
+    return "Backend Server is up and Running!"
 
 
-@router.post("/upload",method=['POST'])
-def upload_marksheet(request: UploadMarksheet):
-    file_name = request.file_name
-    user_id = request.user_id
-    file_status = upload_file_process()
-    # TODO File Upload to Blob and LLM based extraction and DB Insertion
-    return "File Uploaded Successfully"
+@admin_router.post("/upload")
+def upload_marksheet(
+    file_name: str = Form(...),
+    user_id: str = Form(...),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    # file_name and user_id are now directly available as parameters
+    upload_result = upload_file_process(file)
+    blob_url, extracted_content = upload_result['blob_url'], upload_result['extracted_json']
+    # marksheet_id = insert_marksheet_data(
+    #     db=db,
+    #     user_id=user_id,
+    #     semester_number=semester_number,
+    #     blob_url=blob_url,
+    #     extracted_data=extracted_data
+    # )
+    return {"message": "File uploaded successfully", "marksheet_id": str(marksheet_id),"extracted_content":extracted_content}
 
-@router.post("/register")
+@admin_router.post("/register")
 async def register_student(
     email: str,
     password: str,

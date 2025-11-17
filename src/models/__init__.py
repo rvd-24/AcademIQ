@@ -9,7 +9,7 @@ from .student import Student
 from .teacher import Teacher
 from .subject import Subject
 from .marksheet import Marksheet
-from .student_mark import StudentMark
+from .student_marks import StudentMark
 from .chat_history import ChatHistory
 
 __all__ = [
