@@ -1,0 +1,20 @@
+[project]
+name = "academiq"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncpg>=0.29.0",
+    "azure-storage-blob>=12.27.1",
+    "bcrypt==4.3.0",
+    "fastapi>=0.104.0",
+    "openai>=2.9.0",
+    "psycopg[binary,pool]>=3.3.1",
+    "pydantic>=2.12.5",
+    "pymupdf>=1.26.6",
+    "python-dotenv>=1.0.0",
+    "python-multipart>=0.0.20",
+    "sqlalchemy>=2.0.0",
+    "uvicorn[standard]>=0.24.0",
+]

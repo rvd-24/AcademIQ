@@ -1,57 +1,49 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
-from schemas.admin_schema import UploadMarksheet
-from services.admin_service import upload_file_process
-from db import get_db
-from sqlalchemy.orm import Session
-from crud.student_crud import create_student_with_user, get_student_by_registration
+from fastapi import APIRouter, Depends, HTTPException
+from src.schemas.admin_schema import UploadMarksheet, RegisterStudent, LoginStudent
+from src.services.admin_service import upload_file_process
+from src.config.database import get_db as get_async_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.crud.student_crud import create_student_with_user, get_student_by_registration
+import asyncio
+
 
 admin_router = APIRouter()
 
+
 @admin_router.get("/")
-def admin_home():
+async def admin_home():
     return "Backend Server is up and Running!"
 
 
 @admin_router.post("/upload")
-def upload_marksheet(
-    file_name: str = Form(...),
-    user_id: str = Form(...),
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+async def upload_marksheet(
+    upload_marksheet: UploadMarksheet,
+    db: AsyncSession = Depends(get_async_db)
 ):
-    # file_name and user_id are now directly available as parameters
-    upload_result = upload_file_process(file)
+    # Run the CPU / I/O heavy sync processing in a thread to avoid blocking the event loop
+    upload_result = await asyncio.to_thread(upload_file_process, upload_marksheet.file)
     blob_url, extracted_content = upload_result['blob_url'], upload_result['extracted_json']
-    # marksheet_id = insert_marksheet_data(
-    #     db=db,
-    #     user_id=user_id,
-    #     semester_number=semester_number,
-    #     blob_url=blob_url,
-    #     extracted_data=extracted_data
-    # )
-    return {"message": "File uploaded successfully", "marksheet_id": str(marksheet_id),"extracted_content":extracted_content}
+    return {"message": "File uploaded successfully", "marksheet_id": "1234567890", "extracted_content": extracted_content}
+
 
 @admin_router.post("/register")
 async def register_student(
-    email: str,
-    password: str,
-    full_name: str,
-    registration_number: str,
-    department: str,
-    batch_year: int,
-    db: Session = Depends(get_db)
+    student: RegisterStudent,
+    db: AsyncSession = Depends(get_async_db)
 ):
     """Register a new student"""
     try:
-        student = create_student_with_user(
+        student_obj = await create_student_with_user(
             db=db,
-            email=email,
-            password=password,
-            full_name=full_name,
-            registration_number=registration_number,
-            department=department,
-            batch_year=batch_year
+            email=student.email,
+            password=student.password,
+            full_name=student.full_name,
+            registration_number=student.registration_number,
+            department=student.department,
+            batch_year=student.batch_year
         )
-        return student.to_dict()
+        return {"message": "Student registered successfully", "student_id": str(student_obj.student_id)}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

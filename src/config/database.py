@@ -4,21 +4,26 @@ Database configuration and connection setup for PostgreSQL using SQLAlchemy asyn
 import os
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import declarative_base
 
 # Database connection URL
 # Format: postgresql+asyncpg://user:password@host:port/database
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/academiq"
+
+url = URL.create(
+    drivername="postgresql+asyncpg",
+    username="db_admin",
+    password=os.environ.get("DB_PASSWORD"),
+    host=os.environ.get("DB_HOST"),
+    port=5432,
+    database='dev-academiq'
 )
 
 # Create async engine
 engine = create_async_engine(
-    DATABASE_URL,
-    echo=os.getenv("DB_ECHO", "False").lower() == "true",  # Set to True for SQL query logging
+    url,
     future=True,
-    pool_pre_ping=True,  # Verify connections before using
+    pool_pre_ping=True,
     pool_size=10,
     max_overflow=20,
 )
